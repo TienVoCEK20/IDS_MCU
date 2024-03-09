@@ -1,0 +1,3 @@
+../Core/Src/ai_can.c:22:6:AI_can_Init	2
+../Core/Src/ai_can.c:40:6:AI_can_Run	2
+../Core/Src/ai_can.c:58:6:AI_can_setData	2
