@@ -1,65 +1,15 @@
 /*
-  ***************************************************************************************************************
-  ***************************************************************************************************************
-  ***************************************************************************************************************
-
-  File:		  	   tcpServerRAW.c
-  Modified By:     ControllersTech.com
-  Updated:    	   26-Jul-2021
-
-  ***************************************************************************************************************
-  Copyright (C) 2017 ControllersTech.com
-
-  This is a free software under the GNU license, you can redistribute it and/or modify it under the terms
-  of the GNU General Public License version 3 as published by the Free Software Foundation.
-  This software library is shared with public for educational purposes, without WARRANTY and Author is not liable for any damages caused directly
-  or indirectly by this software, read more about this on the GNU General Public License.
-
-  ***************************************************************************************************************
-*/
-
-
-/**
- * Copyright (c) 2001-2004 Swedish Institute of Computer Science.
- * All rights reserved.
+ * tcpServerRaw.c
  *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
- *
- * 1. Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- * 3. The name of the author may not be used to endorse or promote products
- *    derived from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
- * SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
- * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
- * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
- * OF SUCH DAMAGE.
- *
- * This file is part of and a contribution to the lwIP TCP/IP stack.
- *
- * Credits go to Adam Dunkels (and the current maintainers) of this software.
- *
- * Christiaan Simons rewrote this file to get a more stable  application.
- *
- **/
-
- /* This file was modified by ST */
+ *  Created on: Mar 9, 2024
+ *      Author: tien.vo
+ */
 
 #include "tcpserverRAW.h"
 
 #include "lwip/tcp.h"
 
-
+#include "ai_can.h"
 
 /*  protocol states */
 enum tcp_server_states
@@ -471,12 +421,12 @@ static void tcp_server_handle (struct tcp_pcb *tpcb, struct tcp_server_struct *e
 	    memcpy(esTx, es, sizeof(struct tcp_server_struct));
 	}
 
-	/* get the Remote IP */
-	ip4_addr_t inIP = tpcb->remote_ip;
-	uint16_t inPort = tpcb->remote_port;
-
-	/* Extract the IP */
-	char *remIP = ipaddr_ntoa(&inIP);
+//	/* get the Remote IP */
+//	ip4_addr_t inIP = tpcb->remote_ip;
+//	uint16_t inPort = tpcb->remote_port;
+//
+//	/* Extract the IP */
+//	char *remIP = ipaddr_ntoa(&inIP);
 
 	esTx->state = es->state;
 	esTx->pcb = es->pcb;
@@ -486,17 +436,34 @@ static void tcp_server_handle (struct tcp_pcb *tpcb, struct tcp_server_struct *e
 	memset (buf, '\0', 100);
 
 	strncpy(buf, (char *)es->p->payload, es->p->tot_len);
-	strcat (buf, "+ Hello from TCP SERVER\n");
 
+    // Parse the payload and store the data in the new buffer
+	int i = 0;
+    char* token;
+
+    token = strtok(buf, ",");
+    while (token != NULL && i < 9) {
+    	App_Config.can_in[i] = (ai_float) atoi(token);
+        i++;
+        token = strtok(NULL, ",");
+    }
+
+    sprintf(App_Config.lable, token);
+
+    Can_Network_Inference(&App_Config);
 
 //  if (esTx != NULL && esTx->p != NULL && buf != NULL) {
 //    esTx->p->payload = (void *)buf;
 //  } else {
 //      // Handle the error here
 //  }
-	esTx->p->payload = (void *)&buf;
-	esTx->p->tot_len = (es->p->tot_len - es->p->len) + strlen (buf);
-	esTx->p->len = strlen (buf);
+
+    Can_Network_Postprocess(&App_Config);
+
+
+	esTx->p->payload = (void *)&App_Config.sent_buffer;
+	esTx->p->tot_len = (es->p->tot_len - es->p->len) + strlen (App_Config.sent_buffer);
+	esTx->p->len = strlen (App_Config.sent_buffer);
 
 	tcp_server_send(tpcb, esTx);
 

@@ -19,30 +19,23 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "lwip.h"
-//#include "app_x-cube-ai.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
 /* AI */
 #include "ai_can.h"
 
 /* tcp */
 #include "tcpServerRAW.h"
-
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-//AI_ALIGNED(4) static ai_u8 activations[AI_NETWORK_DATA_ACTIVATIONS_SIZE];
-//// Define the input and output tensor buffers
-//AI_ALIGNED(4) static ai_u16 in_data[AI_NETWORK_IN_1_SIZE_BYTES];
-//AI_ALIGNED(4) static ai_u8  out_data[AI_NETWORK_OUT_1_SIZE_BYTES];
+AppConfig_TypeDef App_Config;
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -59,7 +52,6 @@ TIM_HandleTypeDef htim14;
 UART_HandleTypeDef huart7;
 
 /* USER CODE BEGIN PV */
-
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -74,8 +66,7 @@ static void MX_UART7_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-uint16_t dumpData[9] ={0,0,0,0,0,0,0,0,0};
-uint32_t timeStamp;
+
 /* USER CODE END 0 */
 
 /**
@@ -116,13 +107,11 @@ int main(void)
   MX_TIM14_Init();
   MX_UART7_Init();
   MX_LWIP_Init();
-//  MX_X_CUBE_AI_Init();
   /* USER CODE BEGIN 2 */
   HAL_TIM_Base_Start(&htim14);
-  AI_can_Init();
+  network_init();
   tcp_server_init();
 
-  printf("Hello World\r\n");
   HAL_Delay(100);
   /* USER CODE END 2 */
 
@@ -131,13 +120,16 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-//  MX_X_CUBE_AI_Process();
+
     /* USER CODE BEGIN 3 */
-	  float result[2];
+//	  float result[2];
+//	  uint32_t timestamp = htim14.Instance->CNT;
+//	  AI_can_setData(&dumpData,9);
+//	  AI_can_Run(&result);
+//	  timestamp = htim14.Instance->CNT - timestamp;
+
 	  MX_LWIP_Process();
-	  AI_can_setData(&dumpData,9);
-	  AI_can_Run(&result);
-	  printf("abd");
+
   }
   /* USER CODE END 3 */
 }
@@ -313,17 +305,7 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-#ifdef __GNUC__
-#define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
-#else
-#define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
-#endif
 
-PUTCHAR_PROTOTYPE
-{
-  HAL_UART_Transmit(&huart7, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
-  return ch;
-}
 /* USER CODE END 4 */
 
 /**

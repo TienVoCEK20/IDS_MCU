@@ -2,7 +2,7 @@
  * ai_can.c
  *
  *  Created on: Mar 9, 2024
- *      Author: kietr
+ *      Author: tien.vo
  */
 
 #include "ai_can.h"
@@ -29,7 +29,6 @@ void AI_can_Init(void)
     err = ai_network_can_create_and_init(&network_can, act_addr, NULL);
     if (err.type != AI_ERROR_NONE)
     {
-        printf("ai_network_create_and_init error - type=%d code=%d", err.type, err.code);
         return;
     }
     ai_can_input = ai_network_can_inputs_get(network_can, NULL);
@@ -42,20 +41,19 @@ void AI_can_Run(float *result)
     ai_i32 batch;
     ai_error err;
 
-    /* Update IO handlers with the data payload */
-    ai_can_input[0].data = AI_HANDLE_PTR(aiCanInData);
-    ai_can_output[0].data = AI_HANDLE_PTR(aiCanOutData);
     batch = ai_network_can_run(network_can, ai_can_input, ai_can_output);
     if (batch != 1)
     {
         err = ai_network_can_get_error(network_can);
-        printf("AI ai_network_run error - type=%d code=%d", err.type, err.code);
-    return 0;
+        return;
     }
-    result = ((ai_float *)aiCanOutData);
+    else
+    {
+        result = ((ai_float *)aiCanOutData);
+    }
 }
 
-void AI_can_setData(float* pIn, int Length)
+void AI_can_setData(uint16_t* pIn, int Length)
 {
 	for (int i = 0; i < Length; i++)
 	{
@@ -63,6 +61,52 @@ void AI_can_setData(float* pIn, int Length)
 	}
 }
 
+void network_init()
+{
+    ai_error err;
+
+    /* Create a local array with the addresses of the activations buffers */
+    const ai_handle act_addr[] = {activations_can};
+    /* Create an instance of the model */
+    err = ai_network_can_create_and_init(&network_can, act_addr, NULL);
+    if (err.type != AI_ERROR_NONE)
+    {
+        return;
+    }
+    ai_can_input = ai_network_can_inputs_get(network_can, NULL);
+    ai_can_output = ai_network_can_outputs_get(network_can, NULL);
+}
+
+void Can_Network_Preprocess(AppConfig_TypeDef* App_Config_Ptr)
+{
+    /* Update IO handlers with the data payload */
+
+}
+
+
+void Can_Network_Inference(AppConfig_TypeDef* App_Config_Ptr)
+{
+    ai_i32 batch;
+    ai_error err;
+
+    float *result;
+
+	uint32_t time_start = htim14.Instance->CNT;
+    /* Update IO handlers with the data payload */
+    ai_can_input[0].data = AI_HANDLE_PTR(App_Config_Ptr->can_in);
+    ai_can_output[0].data = AI_HANDLE_PTR(App_Config_Ptr->can_out);
+	batch = ai_network_can_run(network_can, ai_can_input, ai_can_output);
+	if (batch != 1) {
+		while(1);
+	}
+	result = ((ai_float *)App_Config_Ptr->can_out);
+	App_Config_Ptr->nn_inference_time = htim14.Instance->CNT - time_start;
+}
+
+void Can_Network_Postprocess(AppConfig_TypeDef* App_Config_Ptr)
+{
+    snprintf(App_Config_Ptr->sent_buffer, sizeof(App_Config_Ptr->sent_buffer), "%.2f,%.2f,%ld,%s", App_Config_Ptr->can_out[0], App_Config_Ptr->can_out[1], App_Config_Ptr->nn_inference_time, App_Config_Ptr->lable);
+}
 /*
  *
 twr_rtc_get_datetime(&datetime);
@@ -85,3 +129,4 @@ AI_Temperature_Run(aiTemperatureInData, aiTemperatureOutData);
 // Get the output
 float predicted_temperature = ((ai_float *)aiTemperatureOutData)[0];
  */
+
