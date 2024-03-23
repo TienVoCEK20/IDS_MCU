@@ -1,9 +1,0 @@
-../Core/Src/tcpServerRAW.c:102:6:tcp_server_init	2
-../Core/Src/tcpServerRAW.c:138:14:tcp_server_accept	2
-../Core/Src/tcpServerRAW.c:191:14:tcp_server_recv	10
-../Core/Src/tcpServerRAW.c:294:13:tcp_server_error	2
-../Core/Src/tcpServerRAW.c:314:14:tcp_server_poll	4
-../Core/Src/tcpServerRAW.c:354:14:tcp_server_sent	3
-../Core/Src/tcpServerRAW.c:385:13:tcp_server_send	8
-../Core/Src/tcpServerRAW.c:445:13:tcp_server_connection_close	2
-../Core/Src/tcpServerRAW.c:467:13:tcp_server_handle	2

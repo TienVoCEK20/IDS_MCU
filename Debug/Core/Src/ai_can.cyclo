@@ -1,3 +1,4 @@
-../Core/Src/ai_can.c:22:6:AI_can_Init	2
-../Core/Src/ai_can.c:40:6:AI_can_Run	2
-../Core/Src/ai_can.c:58:6:AI_can_setData	2
+../Core/Src/ai_can.c:24:6:network_init	2
+../Core/Src/ai_can.c:40:6:Can_Network_Preprocess	4
+../Core/Src/ai_can.c:62:6:Can_Network_Inference	3
+../Core/Src/ai_can.c:89:6:Can_Network_Postprocess	1

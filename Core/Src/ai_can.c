@@ -2,86 +2,93 @@
  * ai_can.c
  *
  *  Created on: Mar 9, 2024
- *      Author: kietr
+ *      Author: tien.vo
  */
 
 #include "ai_can.h"
 
 // Create the AI network structure
-ai_handle network_can;
+ai_handle can_network;
+extern AppConfig_TypeDef App_Config;
 
-float aiCanInData[AI_NETWORK_CAN_IN_1_SIZE];
-float aiCanOutData[AI_NETWORK_CAN_OUT_1_SIZE];
+float aiCanInData[AI_CAN_NETWORK_IN_1_SIZE];
+float aiCanOutData[AI_CAN_NETWORK_OUT_1_SIZE];
 
-ai_u8 activations_can[AI_NETWORK_CAN_DATA_ACTIVATIONS_SIZE];
+ai_u8 activations_can[AI_CAN_NETWORK_DATA_ACTIVATIONS_SIZE];
 
 ai_buffer *ai_can_input;
 ai_buffer *ai_can_output;
 
 /* Initialize the AI network */
-void AI_can_Init(void)
+
+void network_init()
 {
     ai_error err;
 
     /* Create a local array with the addresses of the activations buffers */
     const ai_handle act_addr[] = {activations_can};
     /* Create an instance of the model */
-    err = ai_network_can_create_and_init(&network_can, act_addr, NULL);
+    err = ai_can_network_create_and_init(&can_network, act_addr, NULL);
     if (err.type != AI_ERROR_NONE)
     {
-        printf("ai_network_create_and_init error - type=%d code=%d", err.type, err.code);
         return;
     }
-    ai_can_input = ai_network_can_inputs_get(network_can, NULL);
-    ai_can_output = ai_network_can_outputs_get(network_can, NULL);
+    ai_can_input = ai_can_network_inputs_get(can_network, NULL);
+    ai_can_output = ai_can_network_outputs_get(can_network, NULL);
 }
 
-// Run the can network over the inputs and save the output
-void AI_can_Run(float *result)
+void Can_Network_Preprocess()
 {
-    ai_i32 batch;
-    ai_error err;
+    // Parse the payload and store the data in the new buffer
+		int i = 0;
+    	char* token;
 
-    /* Update IO handlers with the data payload */
-    ai_can_input[0].data = AI_HANDLE_PTR(aiCanInData);
-    ai_can_output[0].data = AI_HANDLE_PTR(aiCanOutData);
-    batch = ai_network_can_run(network_can, ai_can_input, ai_can_output);
-    if (batch != 1)
-    {
-        err = ai_network_can_get_error(network_can);
-        printf("AI ai_network_run error - type=%d code=%d", err.type, err.code);
-    return 0;
-    }
-    result = ((ai_float *)aiCanOutData);
+    	token = strtok(App_Config.data, ",");
+    	while (token != NULL && i < 9) {
+    		App_Config.can_in[i] = (ai_float) atoi(token);
+    		i++;
+    		token = strtok(NULL, ",");
+    	}
+
+    	if (token == NULL) {
+    		printf("Error: Invalid buffer format. Expected 9 comma-separated values.\n");
+    		return;
+    	}
+
+    	sprintf(App_Config.lable, token);
 }
 
-void AI_can_setData(float* pIn, int Length)
+
+void Can_Network_Inference()
 {
-	for (int i = 0; i < Length; i++)
-	{
-		aiCanInData[i] = (ai_float) pIn[i];
-	}
+	    ai_i32 batch;
+	    ai_error err;
+
+
+	    /* Update IO handlers with the data payload */
+	    ai_can_input[0].data = AI_HANDLE_PTR(App_Config.can_in);
+	    ai_can_output[0].data = AI_HANDLE_PTR(App_Config.can_out);
+
+
+		int time_start = htim14.Instance->CNT;
+		batch = ai_can_network_run(can_network, ai_can_input, ai_can_output);
+		if (batch != 1) {
+			while(1);
+		}
+		App_Config.nn_inference_time = htim14.Instance->CNT - time_start;
+		if (App_Config.nn_inference_time <= 0)
+		{
+			App_Config.nn_inference_time = App_Config.prev_time;
+		}
+		else
+		{
+			App_Config.prev_time = App_Config.nn_inference_time;
+		}
 }
 
-/*
- *
-twr_rtc_get_datetime(&datetime);
+void Can_Network_Postprocess()
+{
+//	  sprintf(App_Config.sent_buffer, "0,0,0,0,0");//"%.2f,%.2f,%ld,%s", App_Config.can_out[0], App_Config.can_out[1], App_Config.nn_inference_time, App_Config.lable);
+    sprintf(App_Config.sent_buffer, "%.2f,%.2f,%d,%s", App_Config.can_out[0], App_Config.can_out[1], App_Config.nn_inference_time, App_Config.lable);
+}
 
-int year = datetime.tm_year + 1900;
-
-// Put all the needed data into as inputs (based on what you trained the model with)
-((ai_float *)aiTemperatureInData)[0] = (ai_float)year;
-((ai_float *)aiTemperatureInData)[1] = (ai_float)datetime.tm_mon;
-((ai_float *)aiTemperatureInData)[2] = (ai_float)datetime.tm_mday;
-((ai_float *)aiTemperatureInData)[3] = (ai_float)datetime.tm_hour;
-((ai_float *)aiTemperatureInData)[4] = (ai_float)datetime.tm_min;
-((ai_float *)aiTemperatureInData)[5] = (ai_float)datetime.tm_sec;
-((ai_float *)aiTemperatureInData)[6] = (ai_float)lastTemperature;
-((ai_float *)aiTemperatureInData)[7] = (ai_float)lastHumidity;
-
-// Run the model
-AI_Temperature_Run(aiTemperatureInData, aiTemperatureOutData);
-
-// Get the output
-float predicted_temperature = ((ai_float *)aiTemperatureOutData)[0];
- */
