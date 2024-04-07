@@ -1,32 +1,32 @@
 Neural Network Tools for STM32 family v1.7.0 (stm.ai v8.1.0-19520)
-Created date          : 2024-03-13 01:29:13
-Parameters            : generate --name can_network -m C:/Users/tien.vo/Downloads/tfmodel_final.tflite --type tflite --compression lossless --verbosity 1 --workspace C:\Users\tien.vo\AppData\Local\Temp\mxAI_workspace108124993879040010416359666888087629 --output C:\Users\tien.vo\.stm32cubemx\network_output --allocate-inputs --series stm32f7 -O time --allocate-outputs
+Created date          : 2024-04-07 10:42:26
+Parameters            : generate --name can_network -m /Users/kietr/Study/Learning/IDS_AI/tfmodel_final.tflite --type tflite --compression none --verbosity 1 --workspace /var/folders/hj/vmrwxm1s043d94mb5z763b8c0000gn/T/mxAI_workspace4489648125760837494384441857458476 --output /Users/kietr/.stm32cubemx/can_network_output --allocate-inputs --series stm32f4 --allocate-outputs
 
 Exec/report summary (generate)
-----------------------------------------------------------------------------------------------------------------
-model file         :   C:\Users\tien.vo\Downloads\tfmodel_final.tflite                                          
-type               :   tflite                                                                                   
-c_name             :   can_network                                                                              
-compression        :   lossless                                                                                 
-options            :   allocate-inputs, allocate-outputs                                                        
-optimization       :   time                                                                                     
-target/series      :   stm32f7                                                                                  
-workspace dir      :   C:\Users\tien.vo\AppData\Local\Temp\mxAI_workspace108124993879040010416359666888087629   
-output dir         :   C:\Users\tien.vo\.stm32cubemx\network_output                                             
-model_fmt          :   float                                                                                    
-model_name         :   tfmodel_final                                                                            
-model_hash         :   093ef77335b35707ba45eeb8e42360ac                                                         
-params #           :   22,050 items (86.13 KiB)                                                                 
-----------------------------------------------------------------------------------------------------------------
-input 1/1          :   'serving_default_sequential_1_input0' (domain:activations/**default**)                   
-                   :   9 items, 36 B, ai_float, float, (1,9,1,1)                                                
-output 1/1         :   'nl_6' (domain:activations/**default**)                                                  
-                   :   2 items, 8 B, ai_float, float, (1,2)                                                     
-macc               :   191,072                                                                                  
-weights (ro)       :   88,200 B (86.13 KiB) (1 segment)                                                         
-activations (rw)   :   3,456 B (3.38 KiB) (1 segment) *                                                         
-ram (total)        :   3,456 B (3.38 KiB) = 3,456 + 0 + 0                                                       
-----------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------
+model file         :   /Users/kietr/Study/Learning/IDS_AI/tfmodel_final.tflite                                             
+type               :   tflite                                                                                              
+c_name             :   can_network                                                                                         
+compression        :   none                                                                                                
+options            :   allocate-inputs, allocate-outputs                                                                   
+optimization       :   balanced                                                                                            
+target/series      :   stm32f4                                                                                             
+workspace dir      :   /var/folders/hj/vmrwxm1s043d94mb5z763b8c0000gn/T/mxAI_workspace4489648125760837494384441857458476   
+output dir         :   /Users/kietr/.stm32cubemx/can_network_output                                                        
+model_fmt          :   float                                                                                               
+model_name         :   tfmodel_final                                                                                       
+model_hash         :   093ef77335b35707ba45eeb8e42360ac                                                                    
+params #           :   22,050 items (86.13 KiB)                                                                            
+---------------------------------------------------------------------------------------------------------------------------
+input 1/1          :   'serving_default_sequential_1_input0' (domain:activations/**default**)                              
+                   :   9 items, 36 B, ai_float, float, (1,9,1,1)                                                           
+output 1/1         :   'nl_6' (domain:activations/**default**)                                                             
+                   :   2 items, 8 B, ai_float, float, (1,2)                                                                
+macc               :   191,072                                                                                             
+weights (ro)       :   88,200 B (86.13 KiB) (1 segment)                                                                    
+activations (rw)   :   3,456 B (3.38 KiB) (1 segment) *                                                                    
+ram (total)        :   3,456 B (3.38 KiB) = 3,456 + 0 + 0                                                                  
+---------------------------------------------------------------------------------------------------------------------------
 (*) 'input'/'output' buffers can be used from the activations buffer
 
 Model name - tfmodel_final ['serving_default_sequential_1_input0'] ['nl_6']
@@ -165,10 +165,10 @@ macc=191,072 weights=88,200 act=3,456 ram_io=0
 
 Generated files (7)
 ------------------------------------------------------------------------ 
-C:\Users\tien.vo\.stm32cubemx\network_output\can_network_config.h        
-C:\Users\tien.vo\.stm32cubemx\network_output\can_network.h               
-C:\Users\tien.vo\.stm32cubemx\network_output\can_network.c               
-C:\Users\tien.vo\.stm32cubemx\network_output\can_network_data_params.h   
-C:\Users\tien.vo\.stm32cubemx\network_output\can_network_data_params.c   
-C:\Users\tien.vo\.stm32cubemx\network_output\can_network_data.h          
-C:\Users\tien.vo\.stm32cubemx\network_output\can_network_data.c          
+/Users/kietr/.stm32cubemx/can_network_output/can_network_config.h        
+/Users/kietr/.stm32cubemx/can_network_output/can_network.h               
+/Users/kietr/.stm32cubemx/can_network_output/can_network.c               
+/Users/kietr/.stm32cubemx/can_network_output/can_network_data_params.h   
+/Users/kietr/.stm32cubemx/can_network_output/can_network_data_params.c   
+/Users/kietr/.stm32cubemx/can_network_output/can_network_data.h          
+/Users/kietr/.stm32cubemx/can_network_output/can_network_data.c          

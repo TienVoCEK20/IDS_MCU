@@ -70,12 +70,12 @@ void Can_Network_Inference()
 	    ai_can_output[0].data = AI_HANDLE_PTR(App_Config.can_out);
 
 
-		int time_start = htim14.Instance->CNT;
+		int time_start = htim10.Instance->CNT;
 		batch = ai_can_network_run(can_network, ai_can_input, ai_can_output);
 		if (batch != 1) {
 			while(1);
 		}
-		App_Config.nn_inference_time = htim14.Instance->CNT - time_start;
+		App_Config.nn_inference_time = htim10.Instance->CNT - time_start;
 		if (App_Config.nn_inference_time <= 0)
 		{
 			App_Config.nn_inference_time = App_Config.prev_time;
@@ -89,6 +89,6 @@ void Can_Network_Inference()
 void Can_Network_Postprocess()
 {
 //	  sprintf(App_Config.sent_buffer, "0,0,0,0,0");//"%.2f,%.2f,%ld,%s", App_Config.can_out[0], App_Config.can_out[1], App_Config.nn_inference_time, App_Config.lable);
-    sprintf(App_Config.sent_buffer, "%.2f,%.2f,%d,%s", App_Config.can_out[0], App_Config.can_out[1], App_Config.nn_inference_time, App_Config.lable);
+    sprintf(App_Config.sent_buffer, "%.2f,%.2f,%d,%s", App_Config.can_out[0], App_Config.can_out[1], App_Config.nn_inference_time, App_Config.lable); // @suppress("Float formatting support")
 }
 
